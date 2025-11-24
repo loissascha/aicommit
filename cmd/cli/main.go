@@ -1,9 +1,44 @@
-package cli
+package main
 
-import "github.com/joho/godotenv"
+import (
+	"fmt"
+	"os"
+	"os/exec"
+
+	"github.com/joho/godotenv"
+	"github.com/loissascha/aicommit/internal/ai"
+)
 
 func main() {
 	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+
+	apiKey := os.Getenv("GEMINI_API_KEY")
+	if apiKey == "" {
+		panic("GEMINI_API_KEY not set in .env file or environment variable")
+	}
+
+	cmd := exec.Command("git", "diff", "--staged")
+	out, err := cmd.Output()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("git diff:", string(out))
+
+	header, message, err := ai.GenerateCommitMessage(string(out))
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Header:", header)
+	fmt.Println("Message:", message)
+
+	cmd = exec.Command("git", "commit", "-m", header, "-m", message)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err = cmd.Run()
 	if err != nil {
 		panic(err)
 	}
