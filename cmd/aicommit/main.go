@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -11,6 +12,9 @@ import (
 )
 
 func main() {
+	showTokens := flag.Bool("tokens", false, "add this flag to print out the used tokens.")
+	flag.Parse()
+
 	err := godotenv.Load()
 	if err != nil {
 		panic(err)
@@ -32,7 +36,7 @@ func main() {
 		return
 	}
 
-	header, message, err := ai.GenerateCommitMessage(string(out))
+	header, message, err := ai.GenerateCommitMessage(string(out), *showTokens)
 	if err != nil {
 		panic(err)
 	}

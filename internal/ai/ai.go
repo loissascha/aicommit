@@ -17,7 +17,7 @@ func getClient(ctx context.Context) (*genai.Client, error) {
 }
 
 // returns: header, message, error (if any)
-func GenerateCommitMessage(diffs string) (string, string, error) {
+func GenerateCommitMessage(diffs string, showTokens bool) (string, string, error) {
 	ctx := context.Background()
 	client, err := getClient(ctx)
 	if err != nil {
@@ -62,7 +62,9 @@ func GenerateCommitMessage(diffs string) (string, string, error) {
 	}
 
 	usageData := result.UsageMetadata
-	fmt.Println("Tokens used:", usageData.TotalTokenCount)
+	if showTokens {
+		fmt.Println("Tokens used:", usageData.TotalTokenCount)
+	}
 
 	header := ""
 	message := ""
