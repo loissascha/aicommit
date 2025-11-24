@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -13,6 +14,7 @@ import (
 
 func main() {
 	showTokens := flag.Bool("tokens", false, "add this flag to print out the used tokens.")
+	confirmFlag := flag.Bool("confirm", false, "require confirmation.")
 	flag.Parse()
 
 	err := godotenv.Load()
@@ -39,6 +41,22 @@ func main() {
 	header, message, err := ai.GenerateCommitMessage(string(out), *showTokens)
 	if err != nil {
 		panic(err)
+	}
+
+	if *confirmFlag {
+		fmt.Println(header)
+		fmt.Println("---------------")
+		fmt.Println(message)
+
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("Would you like to accept this commit? [yes/no] (default:yes): ")
+		conf, _ := reader.ReadString('\n')
+		conf = strings.TrimSpace(conf)
+		if conf == "" || conf == "yes" {
+			fmt.Println("")
+		} else {
+			return
+		}
 	}
 
 	cmd = exec.Command("git", "commit", "-m", header, "-m", message)
