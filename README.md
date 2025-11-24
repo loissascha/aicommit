@@ -36,6 +36,10 @@ You can get your API key from [Google AI Studio](https://aistudio.google.com/app
     ```
 
     The tool will generate a commit message and commit your changes.
+    ```bash 
+    aicommit --confirm
+    ```
+    If you add the confirm flag you'll be asked to confirm the result.
 
 
 ## Development
