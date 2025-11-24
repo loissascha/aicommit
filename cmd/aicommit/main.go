@@ -44,9 +44,11 @@ func main() {
 	}
 
 	if *confirmFlag {
+		fmt.Println("")
 		fmt.Println(header)
 		fmt.Println("---------------")
 		fmt.Println(message)
+		fmt.Println("")
 
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Would you like to accept this commit? [yes/no] (default:yes): ")
