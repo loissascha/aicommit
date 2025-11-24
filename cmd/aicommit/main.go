@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -12,35 +13,44 @@ import (
 	"github.com/loissascha/aicommit/internal/ai"
 )
 
+func envFileExists() bool {
+	_, err := os.Stat(".env")
+	if err == nil {
+		return true
+	}
+	return false
+}
+
 func main() {
 	showTokens := flag.Bool("tokens", false, "add this flag to print out the used tokens.")
 	confirmFlag := flag.Bool("confirm", false, "require confirmation.")
 	flag.Parse()
 
-	err := godotenv.Load()
-	if err != nil {
-		panic(err)
+	if envFileExists() {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error reading .env file")
+		}
 	}
 
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
-		panic("GEMINI_API_KEY not set in .env file or environment variable")
+		log.Fatal("GEMINI_API_KEY not set in .env file or environment variable")
 	}
 
 	cmd := exec.Command("git", "diff", "--staged")
 	out, err := cmd.Output()
 	if err != nil {
-		panic(err)
+		log.Fatalln("Error getting git diff of staged files. Is this a git repo?")
 	}
 
 	if strings.TrimSpace(string(out)) == "" {
-		fmt.Println("There are no staged files.")
-		return
+		log.Fatalln("There are no staged files.")
 	}
 
 	header, message, err := ai.GenerateCommitMessage(string(out), *showTokens)
 	if err != nil {
-		panic(err)
+		log.Fatalln("Error getting AI commit message:", err.Error())
 	}
 
 	if *confirmFlag {
@@ -67,6 +77,6 @@ func main() {
 
 	err = cmd.Run()
 	if err != nil {
-		panic(err)
+		log.Fatalln("Error commiting:", err.Error())
 	}
 }
