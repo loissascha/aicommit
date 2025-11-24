@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/loissascha/aicommit/internal/ai"
@@ -25,14 +26,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("git diff:", string(out))
+
+	if strings.TrimSpace(string(out)) == "" {
+		fmt.Println("There are no staged files.")
+		return
+	}
 
 	header, message, err := ai.GenerateCommitMessage(string(out))
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Header:", header)
-	fmt.Println("Message:", message)
 
 	cmd = exec.Command("git", "commit", "-m", header, "-m", message)
 	cmd.Stdout = os.Stdout
