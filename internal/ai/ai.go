@@ -27,7 +27,7 @@ func GenerateCommitMessage(diffs string, showTokens bool) (string, string, error
 	generateTool := &genai.Tool{
 		FunctionDeclarations: []*genai.FunctionDeclaration{{
 			Name:        "generate_commit_message",
-			Description: "Generate commit message for git.",
+			Description: "Generate a commit header (summary) and a message (description) for the provided git diff.",
 			Parameters: &genai.Schema{
 				Type: genai.TypeObject,
 				Properties: map[string]*genai.Schema{
@@ -46,7 +46,7 @@ func GenerateCommitMessage(diffs string, showTokens bool) (string, string, error
 	}
 
 	prompt := genai.Text(
-		fmt.Sprintf("Use the generate_commit_message tool to generate a professional and descriptive commit header and commit message for this git commit. Should be short and descriptive of all the diffs that have happened within this commit. Here are the diffs: %s", diffs),
+		fmt.Sprintf("Use the generate_commit_message tool to generate a professional and descriptive commit header (short summary of the commit message) and commit message (description what happened in the diffs) for this git commit. Should be short and descriptive of all the diffs that have happened within this commit. Make sure to make no mistakes and don't go too much into length. It's very important that the header summarizes what changed specifically in this commit. Here are the diffs: %s", diffs),
 	)
 
 	result, err := client.Models.GenerateContent(
