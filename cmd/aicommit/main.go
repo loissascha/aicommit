@@ -49,6 +49,16 @@ func main() {
 	}
 
 	header, message, err := ai.GenerateCommitMessage(string(out), *showTokens)
+	retriesLeft := 2
+	if err != nil {
+		for retriesLeft > 0 {
+			retriesLeft--
+			header, message, err = ai.GenerateCommitMessage(string(out), *showTokens)
+			if err == nil {
+				retriesLeft = 0
+			}
+		}
+	}
 	if err != nil {
 		log.Fatalln("Error getting AI commit message:", err.Error())
 	}
