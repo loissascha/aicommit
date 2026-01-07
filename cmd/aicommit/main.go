@@ -35,7 +35,8 @@ func main() {
 
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
-		log.Fatal("GEMINI_API_KEY not set in .env file or environment variable")
+		fmt.Println("GEMINI_API_KEY not set in .env file or environment variable")
+		return
 	}
 
 	cmd := exec.Command("git", "diff", "--staged")
@@ -45,7 +46,8 @@ func main() {
 	}
 
 	if strings.TrimSpace(string(out)) == "" {
-		log.Fatalln("There are no staged files.")
+		fmt.Println("There are no staged files.")
+		return
 	}
 
 	header, message, err := ai.GenerateCommitMessage(string(out), *showTokens)
